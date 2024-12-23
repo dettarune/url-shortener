@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   id Int @id @default(autoincrement())
-  shorten String @db.VarChar(512)
+  shorten String @unique @db.VarChar(512)
   link String @db.VarChar(512)
 
   @@map("Shorten")
