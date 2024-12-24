@@ -30,9 +30,15 @@ export class AppService {
     //   return this.generateURL(link); 
     // }
 
-    return await this.prismaService.user.create({
+    const shorten =  await this.prismaService.shorten.create({
       data: {shorten: generateRandomURL(4), link: url}
     })
+
+    return shorten.shorten
+  }
+  
+  async redirectToURL() {
+    await this.prismaService.shorten.findFirst
   }
   
 

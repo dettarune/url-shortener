@@ -13,7 +13,7 @@ export class AppController {
   @Get('/generate/random')
   
   async generateURL(
-    @Body() url: string
+    @Body('url') url:string
   ): Promise<any>{
     try {
 

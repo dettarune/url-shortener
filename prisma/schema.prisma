@@ -13,9 +13,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model shorten {
   id Int @id @default(autoincrement())
-  shorten String @unique @db.VarChar(512)
+  shorten String @unique @default("http://localhost:3000/")
   link String @db.VarChar(512)
 
   @@map("Shorten")
