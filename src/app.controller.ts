@@ -1,20 +1,20 @@
-import { Body, Controller, Get, HttpException } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Param, Res } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Response } from 'express';
 
-@Controller('api')
+@Controller()
 export class AppController {
-  constructor(private userService: AppService) {}
+  constructor(private userService: AppService) { }
 
   @Get()
   getHello(): string {
     return this.userService.getHello();
   }
 
-  @Get('/generate/random')
-  
+  @Get('/api/generate/random')
   async generateURL(
-    @Body('url') url:string
-  ): Promise<any>{
+    @Body('url') url: string
+  ): Promise<any> {
     try {
 
       const shortenedLink = await this.userService.generateURL(url)
@@ -28,4 +28,22 @@ export class AppController {
       throw new HttpException(error.message, 500)
     }
   }
+
+  @Get('/:shorten')
+  async getURL(
+    @Param('shorten') shortenLink,
+    @Res() res: Response
+  ): Promise<any> {
+    try {
+
+      const link = await this.userService.redirectToURL(shortenLink)
+      return res.redirect(link.link)
+
+    } catch (error) {
+      console.log(error.message)
+      throw new HttpException(error.message, 500)
+    }
+  }
+
+
 }
