@@ -51,26 +51,18 @@ export class AppService {
     return findLink
   }
 
-  async generateCustomURL(url: string) {
-    function generateRandomURL(length: number) {
-      let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-      let shorten = ''; 
-      for (let index = 0; index < length; index++) { 
-        shorten += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return shorten; 
-    }
+  async generateCustomURL(shortenLink: string, url: string) {
   
     const taken = await this.prismaService.shorten.findUnique({
-      where: { shorten: url }, 
+      where: { shorten: shortenLink }, 
     });
   
     if (taken) {
-      return this.generateURL(url); 
+      throw new HttpException(`URL TELAH DIAMBIL, MASUKKAN YANG LAIN!`, 401)
     }
 
     const shorten =  await this.prismaService.shorten.create({
-      data: {shorten: generateRandomURL(4), link: url},
+      data: {shorten: shortenLink, link: url},
       select: {shorten: true, link: true}
     })
 

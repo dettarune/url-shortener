@@ -11,13 +11,32 @@ export class AppController {
     return this.userService.getHello();
   }
 
-  @Get('/api/generate/random')
+  @Get('/api/generate/')
   async generateURL(
     @Body('url') url: string
   ): Promise<any> {
     try {
 
       const shortenedLink = await this.userService.generateURL(url)
+      console.log(`Create URL: http://localhost/${shortenedLink}`)
+      return {
+        message: `ShortenLink Telah dibuat`,
+        shortenedLink: `http://localhost/${shortenedLink}`
+      }
+    } catch (error) {
+      console.log(error.message)
+      throw new HttpException(error.message, 500)
+    }
+  }
+
+  @Get('/api/generate/custom')
+  async generateCustomURL(
+    @Body('shortenLink') shortenLink: string,
+    @Body('url') url: string
+  ): Promise<any> {
+    try {
+
+      const shortenedLink = await this.userService.generateCustomURL(shortenLink, url)
       console.log(`Create URL: http://localhost/${shortenedLink}`)
       return {
         message: `ShortenLink Telah dibuat`,
@@ -44,6 +63,5 @@ export class AppController {
       throw new HttpException(error.message, 500)
     }
   }
-
 
 }
