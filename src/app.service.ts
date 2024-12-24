@@ -22,13 +22,13 @@ export class AppService {
       return shorten; 
     }
   
-    // const taken = await this.prismaService.user.findUnique({
-    //   where: { shorten: randomURL }, 
-    // });
+    const taken = await this.prismaService.shorten.count({
+      where: { shorten: url }, 
+    });
   
-    // if (taken) {
-    //   return this.generateURL(link); 
-    // }
+    if (taken != 0) {
+      generateRandomURL(4)
+    }
 
     const shorten =  await this.prismaService.shorten.create({
       data: {shorten: generateRandomURL(4), link: url},
@@ -41,8 +41,8 @@ export class AppService {
   async redirectToURL(url) {
 
     const findLink =  await this.prismaService.shorten.findUnique({
-      where: {shorten: url}
-    })
+      where: {shorten: url},
+      })
 
     if(!findLink){
       throw new HttpException(`URL TIDAK VALID`, 404)
@@ -53,11 +53,11 @@ export class AppService {
 
   async generateCustomURL(shortenLink: string, url: string) {
   
-    const taken = await this.prismaService.shorten.findUnique({
+    const taken = await this.prismaService.shorten.count({
       where: { shorten: shortenLink }, 
     });
   
-    if (taken) {
+    if (taken != 0) {
       throw new HttpException(`URL TELAH DIAMBIL, MASUKKAN YANG LAIN!`, 401)
     }
 
