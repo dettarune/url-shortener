@@ -18,6 +18,7 @@ export class AppController {
     try {
 
       const shortenedLink = await this.userService.generateURL(url)
+      console.log(`Create URL: http://localhost/${shortenedLink}`)
       return {
         message: `ShortenLink Telah dibuat`,
         shortenedLink: `http://localhost/${shortenedLink}`

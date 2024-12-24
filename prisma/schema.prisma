@@ -13,10 +13,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model shorten {
-  id Int @id @default(autoincrement())
-  shorten String @unique @default("http://localhost:3000/")
-  link String @db.VarChar(512)
+model Shorten {
+  id      Int    @id @default(autoincrement())
+  shorten String @unique @db.VarChar(10) 
+  link    String @db.VarChar(512)
 
-  @@map("Shorten")
+  @@map("shorten")
 }
