@@ -12,7 +12,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async generateURL(link: string) {
+  async generateURL(url: string) {
     function generateRandomURL(length: number) {
       let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
       let shorten = ''; 
@@ -22,19 +22,17 @@ export class AppService {
       return shorten; 
     }
   
-    const randomURL = generateRandomURL(4); 
-    const taken = await this.prismaService.user.findUnique({
-      where: { shorten: randomURL }, 
-    });
+    // const taken = await this.prismaService.user.findUnique({
+    //   where: { shorten: randomURL }, 
+    // });
   
-    if (taken) {
-      return this.generateURL(link); 
-    }
+    // if (taken) {
+    //   return this.generateURL(link); 
+    // }
 
     return await this.prismaService.user.create({
-      data: {shorten: randomURL, link: link}
+      data: {shorten: generateRandomURL(4), link: url}
     })
-  
   }
   
 

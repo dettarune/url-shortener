@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, HttpException } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller('api')
@@ -11,11 +11,20 @@ export class AppController {
   }
 
   @Get('/generate/random')
-  generateURL(){
+  
+  async generateURL(
+    @Body() url: string
+  ): Promise<any>{
     try {
-      this.userService.generateURL('http://youtube.com')
+
+      const shortenedLink = await this.userService.generateURL(url)
+      return {
+        message: `ShortenLink Telah dibuat`,
+        shortenedLink: `http://localhost/${shortenedLink}`
+      }
     } catch (error) {
-      
+      console.log(error.message)
+      throw new HttpException(error.message, 500)
     }
   }
 }
