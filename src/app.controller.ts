@@ -18,10 +18,10 @@ export class AppController {
     try {
 
       const shortenedLink = await this.userService.generateURL(url)
-      console.log(`Create URL: http://localhost/${shortenedLink}`)
+      console.log(`Create URL: http://localhost:3000/${shortenedLink}`)
       return {
         message: `ShortenLink Telah dibuat`,
-        shortenedLink: `http://localhost/${shortenedLink}`
+        shortenedLink: `http://localhost:3000/${shortenedLink}`
       }
     } catch (error) {
       console.log(error.message)
@@ -37,10 +37,10 @@ export class AppController {
     try {
 
       const shortenedLink = await this.userService.generateCustomURL(shortenLink, url)
-      console.log(`Create URL: http://localhost/${shortenedLink}`)
+      console.log(`Create URL: http://localhost:3000/${shortenedLink}`)
       return {
         message: `ShortenLink Telah dibuat`,
-        shortenedLink: `http://localhost/${shortenedLink}`
+        shortenedLink: `http://localhost:3000/${shortenedLink}`
       }
     } catch (error) {
       console.log(error.message)
