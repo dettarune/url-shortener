@@ -20,7 +20,7 @@ export class AppController {
 
       let shortenedURL;
 
-      if(customURL === null){
+      if(!customURL){
         shortenedURL = await this.userService.generateURL(url)
       } else {
         shortenedURL = await this.userService.generateCustomURL(customURL, url)
