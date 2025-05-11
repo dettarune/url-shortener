@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './token.controller';
-import { AppService } from './token.service';
+import { AppController } from './url.controller';
+import { AppService } from './url.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
