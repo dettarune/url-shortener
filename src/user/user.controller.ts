@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HttpExceptionFilter } from 'src/error/error.filters';
 import { UserGuard } from 'src/auth/auth.guard';
 import { UserService } from './user.service';
+import { successResponse } from 'src/utils/response.utils';
 
 @Controller('/api/users/')
 @UseFilters(HttpExceptionFilter)
@@ -21,52 +22,40 @@ export class UserController {
 
 
     @Post('')
-    async signUp(
-        @Body() req: CreateUserDTO,
-    ) {
+    @HttpCode(201)
+    async signUp(@Body() req: CreateUserDTO) {
 
         const result = await this.userService.signUp(req)
-        
-        return {
-            message: `Sukses membuat akun dengan username ${result.username}`
-        }
+        return successResponse(`Successfully created account for ${req.username}!`)
 
     }
 
 
     @Post('/login')
-    async login(
-        @Body() req: LoginUserDTO,
-        @Res({ passthrough: true }) res: Response
-    ) {
+    async login(@Body() req: LoginUserDTO) {
+
         const result = await this.userService.login(req)
-        res.setHeader('email', result.email)
-        return {
-            message: `Succes Send Verif Token To: ${result.email}, Please Check Your Email`
-        }
+        return successResponse("Successful sending verification code, please check your email!")
+
     }
 
 
     @Get('/verification-code/welcome/:verifCode')
-    async verify(@Param('verifCode') verifCode: string,@Res({ passthrough: true }) res: Response
-    ) {
-        const result = await this.userService.verify({ token: verifCode });
+    async verify(@Param('verifCode') verifCode: string,@Res({ passthrough: true }) res: Response) {
 
+        const result = await this.userService.verify({ token: verifCode });
         res.cookie('Authorization', result.jwtToken, {
             httpOnly: true,
             secure: true, // false=http
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        return {
-            message: "Login Success!"
-        };
-
+        return successResponse("Login Succes!");
     }
 
 
     @Post('/recovery')
-    async recovery( @Body() req: emailDTO ) {
+    async recovery( @Body() req: emailDTO) {
 
         const result = this.userService.recovery(req)
         return {
@@ -75,6 +64,7 @@ export class UserController {
 
     }
 
+    
 
     @Post('/recovery/password')
     async updatePassword( @Req() { user }: Request, @Body() req: PasswordDTO,) {
@@ -93,7 +83,6 @@ export class UserController {
     async getInfoMe( @Req() { user }: Request,): Promise<any> {
 
         const { username } = user
-
         const result = await this.userService.getInfoMe(username)
 
         return {
@@ -102,14 +91,12 @@ export class UserController {
                 ...result.user,
             }
         }
-
     }
 
 
     @Delete('')
     @UseGuards(UserGuard)
     async logOut(@Res({ passthrough: true }) res: Response): Promise<any> {
-
         res.clearCookie('Authorization', { httpOnly: true, secure: true, path: '/', });
 
         return res.status(HttpStatus.OK).json({

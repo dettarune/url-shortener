@@ -6,33 +6,48 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { CustomErrorFilters } from 'src/error/custom-exception';
 
 @Catch()
 @Injectable()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
+    const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
 
-    console.error('Exception caught in filter:', exception);
+    let status = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Internal Server Error';
+    let suggestion = undefined;
 
-    let status: number;
-    let message: string | object;
-
-    if (exception instanceof HttpException) {
+    if (exception instanceof CustomErrorFilters) {
+      status = exception.getStatus();
+      const response = exception.getResponse() as any;
+      message = response.message || message;
+      suggestion = response.suggestion;
+    } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const response = exception.getResponse();
-      message = typeof response === 'string' ? response : (response as any).message;
+      if (typeof response === 'string') {
+        message = response;
+      } else if (typeof response === 'object') {
+        message = (response as any).message || message;
+        suggestion = (response as any).suggestion;
+      }
     } else {
-      status = HttpStatus.INTERNAL_SERVER_ERROR;
-      message = exception.message || 'Internal Server Error';
+      message = exception.message || message;
     }
 
     res.status(status).json({
-      code: status,
-      message,
-      timestamp: new Date().toISOString(),
+      status: 'error',
+      statusCode: status,
+      error: {
+        message,
+        suggestion,
+        timestamp: new Date().toISOString(),
+        path: req.url,
+      },
     });
   }
 }

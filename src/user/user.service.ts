@@ -7,6 +7,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
 import { randomInt } from 'crypto';
 import { generateVerifCode } from 'src/utils/verification';
+import { CustomErrorFilters } from 'src/error/custom-exception';
+import { checkAuthConflict } from 'src/utils/auth.utils';
 
 @Injectable()
 export class UserService {
@@ -15,7 +17,7 @@ export class UserService {
         private prismaServ: PrismaService,
         private redisService: RedisService,
         private jwtService: JwtService
-    ) {}
+    ) { }
 
     async signUp(req: CreateUserDTO) {
 
@@ -33,18 +35,8 @@ export class UserService {
         });
 
         if (user) {
-            const isUsernameTaken = user.username === req.username;
-            const isEmailTaken = user.email === req.email;
-
-            if (isUsernameTaken && isEmailTaken) {
-                throw new HttpException('Username dan Email sudah terdaftar', HttpStatus.CONFLICT);
-            } else if (isUsernameTaken) {
-                throw new HttpException('Username sudah terdaftar', HttpStatus.CONFLICT);
-            } else if (isEmailTaken) {
-                throw new HttpException('Email sudah terdaftar', HttpStatus.CONFLICT);
-            }
+            checkAuthConflict(user, req);
         }
-
         await this.prismaServ.user.create({
             data: {
                 username: req.username,
@@ -54,14 +46,13 @@ export class UserService {
         });
 
         const token = await generateVerifCode(req.email, req.username, this.jwtService, this.mailerService)
-        
-        await this.redisService.setTTL(`verification_code:${req.email}`, token, 10 * 60);
 
+        await this.redisService.setTTL(`verification_code:${req.email}`, token, 10 * 60);
         return {
             email: req.email,
             username: req.username
         };
-}
+    }
 
 
     async login(req: LoginUserDTO) {
@@ -88,54 +79,54 @@ export class UserService {
             };
         } catch (error) {
             console.error(error.message);
-            throw new HttpException(error.message, error.status );
+            throw new HttpException(error.message, error.status);
         }
     }
 
     async verify(tokenDto: verifyTokenDTO) {
-    try {
-        let payload;
         try {
-            payload = this.jwtService.verify(tokenDto.token, {
-                secret: process.env.SECRET_JWT
+            let payload;
+            try {
+                payload = this.jwtService.verify(tokenDto.token, {
+                    secret: process.env.SECRET_JWT
+                });
+            } catch (err) {
+                throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
+            }
+
+            const redisKey = `verification_code:${payload.email}`;
+            const tokenRedis = await this.redisService.get(redisKey);
+
+            if (!tokenRedis) {
+                throw new HttpException('Verification Code Expired or Invalid', HttpStatus.GONE);
+            }
+
+            if (tokenRedis !== tokenDto.token) {
+                throw new HttpException('Verification Token Not Matched', HttpStatus.FORBIDDEN);
+            }
+
+            const user = await this.prismaServ.user.findFirst({
+                where: { email: payload.email }
             });
-        } catch (err) {
-            throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
+
+            if (!user) {
+                throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+            }
+
+            const jwtToken = this.jwtService.sign(
+                { id: user.id, username: user.username, email: user.email },
+                { secret: process.env.SECRET_JWT, expiresIn: '7d' }
+            );
+
+            await this.redisService.delToken(redisKey);
+
+            return { jwtToken };
+
+        } catch (error) {
+            console.error(error.message);
+            throw new HttpException(error.message, error.code);
         }
-
-        const redisKey = `verification_code:${payload.email}`;
-        const tokenRedis = await this.redisService.get(redisKey);
-
-        if (!tokenRedis) {
-            throw new HttpException('Verification Code Expired or Invalid', HttpStatus.GONE);
-        }
-
-        if (tokenRedis !== tokenDto.token) {
-            throw new HttpException('Verification Token Not Matched', HttpStatus.FORBIDDEN);
-        }
-
-        const user = await this.prismaServ.user.findFirst({
-            where: { email: payload.email }
-        });
-
-        if (!user) {
-            throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
-        }
-
-        const jwtToken = this.jwtService.sign(
-            { id: user.id, username: user.username, email: user.email },
-            { secret: process.env.SECRET_JWT, expiresIn: '7d' }
-        );
-
-        await this.redisService.delToken(redisKey);
-
-        return { jwtToken };
-
-    } catch (error) {
-        console.error(error.message);
-        throw new HttpException(error.message, error.code );
     }
-}
 
 
 
