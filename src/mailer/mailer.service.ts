@@ -18,22 +18,31 @@ export class MailerService {
         });
     }
 
-    async sendMail(targetEmail: string, subject: string, token, ): Promise<any>{
+    async sendMail(targetEmail: string, targetUsername: string, token, ): Promise<any>{
         try {
             this.transporter.sendMail({
                 from: 'smallinURL',
                 to: targetEmail,
-                subject: subject,
+                subject: "Verification Code – SmallinURL",
                 html: `
-                <div style="font-family: Arial, sans-serif; text-align: center;">
-                    <h1>Your Verificati on Code</h1>
-                    <p>KODE HANGUS DALAM 5 MENIT</p>  
-                    <p>Use the token below to verify your account:</p>  <br>          
-    
-                    <h1 style="color: #4CAF50;">${token}</h1>
-                    <p>If you didn't request this, you can ignore this email.</p>
-                </div>
-            ` 
+                <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                    <div style="max-width: 500px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <h2 style="color: #333;">Hello, ${targetUsername}, Please verify your account </h2>
+                        <p style="font-size: 16px; color: #555;">We're excited to have you join <strong>SmallinURL</strong>! To get started, please verify your account using the token below. This link expires in <strong>10 minutes</strong>.</p>
+                        
+                        <div style="background-color: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #4CAF50; margin: 0;">${token}</h3>
+                        </div>
+
+                        <p style="font-size: 14px; color: #888;">If you didn’t request this email, please ignore it.</p>
+
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+
+                        <p style="font-size: 12px; color: #bbb; text-align: center;">
+                            © ${new Date().getFullYear()} SmallinURL. All rights reserved.
+                        </p>
+                    </div
+                    `
             })
         } catch (error) {
             console.log(error)
