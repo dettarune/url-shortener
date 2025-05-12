@@ -18,7 +18,7 @@ export async function generateVerifCode(
 
     await mailerService.sendMail(
         targetEmail,
-        `Dear, ${targetUsername} This is Your Verification Code`,
+        targetUsername,
         url
     );
 
