@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
-import { UserService } from './user.service';
+import {  UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailerService } from 'src/mailer/mailer.service';
 import { RedisService } from 'src/redis/redis.service';

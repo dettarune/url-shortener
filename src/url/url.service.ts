@@ -3,14 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { generateCharacter } from 'src/utils/generateChar';
 
 @Injectable()
-export class AppService {
-  constructor(private prismaService: PrismaService) {}
+export class UrlService {
+  constructor(private prismaService: PrismaService) { }
 
   getHello(): string {
     return 'Hello World!';
   }
 
-  async generateURL(url: string) {
+  async generateURL(url: string, userId) {
     const isShortenedTaken = async (shortened: string) => {
       const taken = await this.prismaService.shorten.count({
         where: { shorten: shortened },
@@ -25,7 +25,11 @@ export class AppService {
 
     // Simpan data ke database
     const result = await this.prismaService.shorten.create({
-      data: { shorten: endpoint, link: url },
+      data: {
+        shorten: endpoint,
+        link: url,
+        userId: userId,  // pastikan 'userId' diambil sesuai dengan context, misalnya dari session atau JWT
+      },
       select: { shorten: true, link: true },
     });
 
@@ -45,7 +49,7 @@ export class AppService {
     return findLink;
   }
 
-  async generateCustomURL(customURL: string, url: string) {
+  async generateCustomURL(customURL: string, url: string, userId: number) {
     const isURLTaken = async (endpoint: string) => {
       const isTaken = await this.prismaService.shorten.count({
         where: { shorten: endpoint },
@@ -61,9 +65,14 @@ export class AppService {
 
     // Simpan data ke database
     const result = await this.prismaService.shorten.create({
-      data: { shorten: customURL, link: url },
+      data: {
+        shorten: customURL,
+        link: url,
+        userId: userId,
+      },
       select: { shorten: true, link: true },
     });
+
 
     console.log(`Custom URL: ${customURL}`);
     return customURL;
