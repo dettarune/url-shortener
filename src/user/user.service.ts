@@ -74,7 +74,6 @@ export class UserService {
             await this.redisService.setTTL(`verif-code-${user.email}`, token, 5 * 60);
 
             return {
-                message: `Success send verif token to: ${user.email}`,
                 email: user.email
             };
         } catch (error) {
