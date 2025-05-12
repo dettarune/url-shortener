@@ -17,6 +17,18 @@ model Shorten {
   id      Int    @id @default(autoincrement())
   shorten String @unique @db.VarChar(50) 
   link    String @db.VarChar(512)
+    userId    Int
+  user      User   @relation(fields: [userId], references: [id])
 
   @@map("shorten")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  username    String        @unique
+  password    String
+  email       String        @unique
+  shortURLs   Shorten[] 
+
+  @@map("user")
 }
