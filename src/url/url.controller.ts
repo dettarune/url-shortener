@@ -22,6 +22,7 @@ export class UrlController {
   ): Promise<any> {
     try {
       const userId = req.user?.id;  
+
       let shortenedURL;
 
       if (!customURL) {

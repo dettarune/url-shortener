@@ -12,30 +12,32 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UrlService } from './url/url.service';
 import { UrlController } from './url/url.controller';
 import { UrlModule } from './url/url.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './error/error.filters';
 
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({
-    global: true,
-    secret: process.env.SECRET_JWT,
-    signOptions: { expiresIn: "10d" }
-  }),
+      global: true,
+      secret: process.env.SECRET_JWT,
+      signOptions: { expiresIn: "10d" }
+    }),
     UserModule,
     WinstonModule.forRoot({
       level: 'debug',
       format: winston.format.json(),
       transports: [new winston.transports.Console()],
-  }),
-  ConfigModule.forRoot({
-    envFilePath: '.env',
-    isGlobal: true
-  }),
-  RedisModule,
-  UrlModule,
+    }),
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true
+    }),
+    RedisModule,
+    UrlModule,
   ],
   controllers: [UrlController],
-  providers: [JwtService, UserService, PrismaService, MailerService, RedisService, UrlService],
+  providers: [JwtService, UserService, PrismaService, MailerService, RedisService, UrlService,],
 })
-export class AppModule {}
+export class AppModule { }

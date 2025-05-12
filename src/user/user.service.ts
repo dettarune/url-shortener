@@ -6,6 +6,7 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
 import { randomInt } from 'crypto';
+import { generateVerifCode } from 'src/utils/verification';
 
 @Injectable()
 export class UserService {
@@ -17,60 +18,51 @@ export class UserService {
     ) {}
 
     async signUp(req: CreateUserDTO) {
-        try {
-            const user = await this.prismaServ.user.findFirst({
-                where: {
-                    OR: [
-                        { username: req.username },
-                        { email: req.email }
-                    ]
-                },
-                select: {
-                    username: true,
-                    email: true
-                }
-            });
 
-            if (user) {
-                const usernameTaken = user.username === req.username;
-                const emailTaken = user.email === req.email;
-
-                if (usernameTaken && emailTaken) {
-                    throw new HttpException('Username dan Email sudah terdaftar', HttpStatus.CONFLICT);
-                } else if (usernameTaken) {
-                    throw new HttpException('Username sudah terdaftar', HttpStatus.CONFLICT);
-                } else if (emailTaken) {
-                    throw new HttpException('Email sudah terdaftar', HttpStatus.CONFLICT);
-                }
+        const user = await this.prismaServ.user.findFirst({
+            where: {
+                OR: [
+                    { username: req.username },
+                    { email: req.email }
+                ]
+            },
+            select: {
+                username: true,
+                email: true
             }
+        });
 
-            const token = this.jwtService.sign(
-                { email: user.email},
-                { secret: process.env.SECRET_JWT, expiresIn: '10m' }
-            );
+        if (user) {
+            const isUsernameTaken = user.username === req.username;
+            const isEmailTaken = user.email === req.email;
 
-            await this.prismaServ.user.create({
-                data: {
-                    username: req.username,
-                    password: await bcrypt.hash(req.password, 10),
-                    email: req.email
-                }
-            });
-
-            await this.mailerService.sendMail(user.email, `${user.email}, KODE RECOVERY SEKALI PAKAI`, token);
-
-            await this.redisService.setTTL(`verification_code:${user.email}`, token, 10 * 60);
-
-            return {
-                email: user.email,
-                username: user.username
-            };
-            
-        } catch (error) {
-            console.error(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            if (isUsernameTaken && isEmailTaken) {
+                throw new HttpException('Username dan Email sudah terdaftar', HttpStatus.CONFLICT);
+            } else if (isUsernameTaken) {
+                throw new HttpException('Username sudah terdaftar', HttpStatus.CONFLICT);
+            } else if (isEmailTaken) {
+                throw new HttpException('Email sudah terdaftar', HttpStatus.CONFLICT);
+            }
         }
-    }
+
+        await this.prismaServ.user.create({
+            data: {
+                username: req.username,
+                password: await bcrypt.hash(req.password, 10),
+                email: req.email
+            }
+        });
+
+        const token = await generateVerifCode(req.email, req.username, this.jwtService, this.mailerService)
+        
+        await this.redisService.setTTL(`verification_code:${req.email}`, token, 10 * 60);
+
+        return {
+            email: req.email,
+            username: req.username
+        };
+}
+
 
     async login(req: LoginUserDTO) {
         try {
@@ -86,13 +78,9 @@ export class UserService {
             if (!isPasswordCorrect)
                 throw new HttpException('Username or password is incorrect', HttpStatus.NOT_FOUND);
 
-            const verifCode = randomInt(100000, 999999).toString();
+            const token = generateVerifCode(user.email, req.username, this.jwtService, this.mailerService)
 
-            await this.mailerService.sendMail(user.email, `${user.username}, KODE RECOVERY SEKALI PAKAI`, verifCode);
-
-            await this.redisService.setTTL(`verif-code-${user.email}`, verifCode, 5 * 60);
-            await this.redisService.setTTL(`username-${user.email}`, user.username, 5 * 60);
-            await this.redisService.setTTL(`id-${user.email}`, user.id.toString(), 5 * 60);
+            await this.redisService.setTTL(`verif-code-${user.email}`, token, 5 * 60);
 
             return {
                 message: `Success send verif token to: ${user.email}`,
@@ -104,35 +92,52 @@ export class UserService {
         }
     }
 
-    async verify(email: emailDTO, token: verifyTokenDTO) {
+    async verify(tokenDto: verifyTokenDTO) {
+    try {
+        let payload;
         try {
-            const verifCode = await this.redisService.get(`verif-code-${email.email}`);
-            const username = await this.redisService.get(`username-${email.email}`);
-            const id = await this.redisService.get(`id-${email.email}`);
-
-            if (!verifCode) {
-                throw new HttpException('Token expired, please request a new one', HttpStatus.GONE);
-            }
-
-            if (!token || token.token !== verifCode) {
-                throw new HttpException('Token invalid', HttpStatus.UNAUTHORIZED);
-            }
-
-            const jwtToken = this.jwtService.sign(
-                { id, username, email: email.email },
-                { secret: process.env.SECRET_JWT, expiresIn: '7d' }
-            );
-
-            await this.redisService.delToken(`verif-code-${email.email}`);
-            await this.redisService.delToken(`username-${email.email}`);
-            await this.redisService.delToken(`id-${email.email}`);
-
-            return { jwtToken };
-        } catch (error) {
-            console.error(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            payload = this.jwtService.verify(tokenDto.token, {
+                secret: process.env.SECRET_JWT
+            });
+        } catch (err) {
+            throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
         }
+
+        const redisKey = `verification_code:${payload.email}`;
+        const tokenRedis = await this.redisService.get(redisKey);
+
+        if (!tokenRedis) {
+            throw new HttpException('Verification Code Expired or Invalid', HttpStatus.GONE);
+        }
+
+        if (tokenRedis !== tokenDto.token) {
+            throw new HttpException('Verification Token Not Matched', HttpStatus.FORBIDDEN);
+        }
+
+        const user = await this.prismaServ.user.findFirst({
+            where: { email: payload.email }
+        });
+
+        if (!user) {
+            throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+        }
+
+        const jwtToken = this.jwtService.sign(
+            { id: user.id, username: user.username, email: user.email },
+            { secret: process.env.SECRET_JWT, expiresIn: '7d' }
+        );
+
+        await this.redisService.delToken(redisKey);
+
+        return { jwtToken };
+
+    } catch (error) {
+        console.error(error.message);
+        throw new HttpException(error.message, error.code || 500);
     }
+}
+
+
 
     async recovery(req: emailDTO) {
         try {
