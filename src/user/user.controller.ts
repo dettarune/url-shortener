@@ -26,6 +26,7 @@ export class UserController {
     ) {
 
         const result = await this.userService.signUp(req)
+        
         return {
             message: `Sukses membuat akun dengan username ${result.username}`
         }
@@ -47,15 +48,13 @@ export class UserController {
 
 
     @Get('/verification-code/welcome/:verifCode')
-    async verify(
-        @Param('verifCode') verifCode: string,
-        @Res({ passthrough: true }) res: Response
+    async verify(@Param('verifCode') verifCode: string,@Res({ passthrough: true }) res: Response
     ) {
         const result = await this.userService.verify({ token: verifCode });
 
         res.cookie('Authorization', result.jwtToken, {
             httpOnly: true,
-            secure: false, // false=http
+            secure: true, // false=http
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -67,9 +66,7 @@ export class UserController {
 
 
     @Post('/recovery')
-    async recovery(
-        @Body() req: emailDTO
-    ) {
+    async recovery( @Body() req: emailDTO ) {
 
         const result = this.userService.recovery(req)
         return {
@@ -112,6 +109,7 @@ export class UserController {
     @Delete('')
     @UseGuards(UserGuard)
     async logOut(@Res({ passthrough: true }) res: Response): Promise<any> {
+
         res.clearCookie('Authorization', { httpOnly: true, secure: true, path: '/', });
 
         return res.status(HttpStatus.OK).json({
