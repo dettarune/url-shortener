@@ -88,7 +88,7 @@ export class UserService {
             };
         } catch (error) {
             console.error(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            throw new HttpException(error.message, error.status );
         }
     }
 
@@ -133,7 +133,7 @@ export class UserService {
 
     } catch (error) {
         console.error(error.message);
-        throw new HttpException(error.message, error.code || 500);
+        throw new HttpException(error.message, error.code );
     }
 }
 
@@ -160,7 +160,7 @@ export class UserService {
             };
         } catch (error) {
             console.error(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            throw new HttpException(error.message, error.status);
         }
     }
 
@@ -190,7 +190,7 @@ export class UserService {
             return { message: 'Password updated successfully' };
         } catch (error) {
             console.log(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            throw new HttpException(error.message, error.status);
         }
     }
 
@@ -207,7 +207,7 @@ export class UserService {
             return { user };
         } catch (error) {
             console.error(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            throw new HttpException(error.message, error.status);
         }
     }
 
@@ -225,7 +225,7 @@ export class UserService {
             return { message: 'User logout (or token cleanup, if applicable)' };
         } catch (error) {
             console.error(error.message);
-            throw new HttpException(error.message, error.status || 500);
+            throw new HttpException(error.message, error.status);
         }
     }
 }

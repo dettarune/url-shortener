@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from 'src/mailer/mailer.service';
 
@@ -12,7 +13,8 @@ export async function generateVerifCode(
         { secret: process.env.SECRET_JWT, expiresIn: '10m' }
     );
 
-    const url = `http://localhost:3000/api/users/verification-code/welcome/${token}`;
+    const baseurl = process.env.BASE_URL
+    const url = `${baseurl}/api/users/verification-code/welcome/${token}`;
 
     await mailerService.sendMail(
         targetEmail,

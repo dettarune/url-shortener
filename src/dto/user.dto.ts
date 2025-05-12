@@ -6,7 +6,7 @@ export class CreateUserDTO {
     username: string
 
     @IsNotEmpty()
-    @Matches(/[A-Z]/, { message: 'Password harus mengandung minimal satu huruf besar' })
+    @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
     password: string
 
     @IsNotEmpty()
@@ -36,7 +36,7 @@ export class emailDTO {
 }
 
 export class verifyTokenDTO {
-    @IsNotEmpty({ message: 'Token Tidak Boleh Kosong' })
+    @IsNotEmpty({ message: "Token cannot be empty" })
     @IsString()
     token: string
 }
