@@ -54,7 +54,7 @@ export class UserController {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        return successResponse("Login Succes!");
+        return successResponse("Login Success!");
     }
 
 

@@ -71,7 +71,7 @@ export class UserService {
 
             const token = await generateVerifCode(user.email, user.username, this.jwtService, this.mailerService)
 
-            await this.redisService.setTTL(`verification_code-${user.email}`, token, 5 * 60);
+            await this.redisService.setTTL(`verification_code:${user.email}`, token, 5 * 60);
 
             return {
                 email: user.email
@@ -82,11 +82,11 @@ export class UserService {
         }
     }
 
-        async verify(tokenDto: verifyTokenDTO) {
+        async verify(verificationCode: verifyTokenDTO) {
             try {
                 let payload;
                 try {
-                    payload = this.jwtService.verify(tokenDto.token, {
+                    payload = this.jwtService.verify(verificationCode.token, {
                         secret: process.env.SECRET_JWT
                     });
                 } catch (err) {
@@ -94,13 +94,9 @@ export class UserService {
                 }
 
                 const redisKey = `verification_code:${payload.email}`;
-                const tokenRedis = await this.redisService.get(redisKey);
+                const tokenRedis = await this.redisService.get(`verification_code:${payload.email}`);
 
-                if (!tokenRedis) {
-                    throw new HttpException('Verification Code Expired or Invalid', HttpStatus.GONE);
-                }
-
-                if (tokenRedis !== tokenDto.token) {
+                if (tokenRedis !== verificationCode.token) {
                     throw new HttpException('Verification Token Not Matched', HttpStatus.FORBIDDEN);
                 }
 
