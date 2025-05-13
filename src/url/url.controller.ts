@@ -4,7 +4,7 @@ import { UrlService } from './url.service';
 import { UserGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
 
-@Controller('')
+@Controller()
 export class UrlController {
   constructor(private userService: UrlService) { }
 
