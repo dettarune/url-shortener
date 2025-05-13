@@ -69,9 +69,9 @@ export class UserService {
             if (!isPasswordCorrect)
                 throw new HttpException('Username or password is incorrect', HttpStatus.NOT_FOUND);
 
-            const token = generateVerifCode(user.email, req.username, this.jwtService, this.mailerService)
+            const token = await generateVerifCode(user.email, user.username, this.jwtService, this.mailerService)
 
-            await this.redisService.setTTL(`verif-code-${user.email}`, token, 5 * 60);
+            await this.redisService.setTTL(`verification_code-${user.email}`, token, 5 * 60);
 
             return {
                 email: user.email

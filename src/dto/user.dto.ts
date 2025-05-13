@@ -1,42 +1,47 @@
-import { Contains, IsEmail, IsNotEmpty, IsNumber, IsString, Matches, Min } from "class-validator"
-import { verify } from "crypto"
+import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDTO {
-    @IsNotEmpty()
-    username: string
+  @ApiProperty({ example: 'detarune16', description: 'The username of the new user' })
+  @IsNotEmpty({ message: 'Username must not be empty' })
+  username: string;
 
-    @IsNotEmpty()
-    @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-    password: string
+  @ApiProperty({ example: 'StrongPass123', description: 'The password must contain at least one uppercase letter' })
+  @IsNotEmpty({ message: 'Password must not be empty' })
+  @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+  password: string;
 
-    @IsNotEmpty()
-    @IsEmail()
-    email: string
+  @ApiProperty({ example: 'detarune@example.com', description: 'A valid email address' })
+  @IsNotEmpty({ message: 'Email must not be empty' })
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  email: string;
 }
 
-
-
 export class LoginUserDTO {
-    @IsNotEmpty()
-    username: string
+  @ApiProperty({ example: 'detarune16', description: 'Your username' })
+  @IsNotEmpty({ message: 'Username must not be empty' })
+  username: string;
 
-    @IsNotEmpty()
-    password: string
-    
+  @ApiProperty({ example: 'StrongPass123', description: 'Your password' })
+  @IsNotEmpty({ message: 'Password must not be empty' })
+  password: string;
 }
 
 export class PasswordDTO {
-    @IsNotEmpty()
-    password: string
+  @ApiProperty({ example: 'StrongPass123', description: 'A new password to be set' })
+  @IsNotEmpty({ message: 'Password must not be empty' })
+  password: string;
 }
 
 export class emailDTO {
-    @IsEmail()
-    email: string
+  @ApiProperty({ example: 'detarune@example.com', description: 'The user\'s email address' })
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  email: string;
 }
 
 export class verifyTokenDTO {
-    @IsNotEmpty({ message: "Token cannot be empty" })
-    @IsString()
-    token: string
+  @ApiProperty({ example: '9f8c3d7b-token', description: 'The verification token received via email' })
+  @IsNotEmpty({ message: 'Token must not be empty' })
+  @IsString({ message: 'Token must be a string' })
+  token: string;
 }
