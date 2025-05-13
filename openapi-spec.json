@@ -226,7 +226,7 @@
           }
         },
         "responses": {
-           "200": {
+          "200": {
             "description": "Login Success & Send Verification Code Via Email",
             "content": {
               "application/json": {
@@ -251,34 +251,35 @@
               }
             },
             "401": {
-            "description": "Incorrect Password Or Username",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
-                    "statusCode": {
-                      "type": "integer",
-                      "example": 401
-                    },
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string",
-                          "example": "Username or password is incorrect"
-                        },
-                        "timestamp": {
-                          "type": "string",
-                          "example": "2025-05-13T13:31:39.172Z"
-                        },
-                        "path": {
-                          "type": "string",
-                          "example": "/api/users/login"
+              "description": "Incorrect Password Or Username",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "statusCode": {
+                        "type": "integer",
+                        "example": 401
+                      },
+                      "error": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "Username or password is incorrect"
+                          },
+                          "timestamp": {
+                            "type": "string",
+                            "example": "2025-05-13T13:31:39.172Z"
+                          },
+                          "path": {
+                            "type": "string",
+                            "example": "/api/users/login"
+                          }
                         }
                       }
                     }
@@ -286,7 +287,6 @@
                 }
               }
             }
-          }
           }
         }
       }
@@ -402,64 +402,63 @@
         ],
         "responses": {
           "200": {
-  "description": "Returns a list of all shortened links associated with the authenticated user.",
-  "content": {
-    "application/json": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success"
-          },
-          "message": {
-            "type": "string",
-            "example": "List of all links for the user"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "example": 1
+            "description": "Returns a list of all shortened links associated with the authenticated user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "List of all links for the user"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "shorten": {
+                            "type": "string",
+                            "example": "Pvlr"
+                          },
+                          "link": {
+                            "type": "string",
+                            "format": "uri",
+                            "example": "https://youtube.com"
+                          }
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-05-13T12:16:08.554Z"
+                    }
+                  }
                 },
-                "shorten": {
-                  "type": "string",
-                  "example": "Pvlr"
-                },
-                "link": {
-                  "type": "string",
-                  "format": "uri",
-                  "example": "https://youtube.com"
+                "example": {
+                  "status": "success",
+                  "message": "List of all links for the user",
+                  "data": [
+                    {
+                      "id": 1,
+                      "shorten": "Pvlr",
+                      "link": "https://youtube.com"
+                    }
+                  ],
+                  "timestamp": "2025-05-13T12:16:08.554Z"
                 }
               }
             }
           },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "example": "2025-05-13T12:16:08.554Z"
-          }
-        }
-      },
-      "example": {
-        "status": "success",
-        "message": "List of all links for the user",
-        "data": [
-          {
-            "id": 1,
-            "shorten": "Pvlr",
-            "link": "https://youtube.com"
-          }
-        ],
-        "timestamp": "2025-05-13T12:16:08.554Z"
-      }
-    }
-  }
-}
-,
           "401": {
             "description": "Unauthorized - Invalid or Expired Token",
             "content": {
@@ -504,6 +503,100 @@
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/url/": {
+      "post": {
+        "tags": [
+          "URL"
+        ],
+        "summary": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "example": "https://example.com"
+                  },
+                  "customURL": {
+                    "type": "string",
+                    "example": "custom-code-123"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/url/{shortened}": {
+      "get": {
+        "tags": [
+          "URL"
+        ],
+        "summary": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shortened",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "abc123"
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "",
+            "headers": {
+              "Location": {
+                "description": "Redirect destination URL",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {}
               }
             }
           }
