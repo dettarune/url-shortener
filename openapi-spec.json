@@ -510,16 +510,98 @@
       }
     },
     "/api/url/": {
-      "method": "POST",
-      "tags": [
-        "URL"
-      ]
+      "post": {
+        "tags": [
+          "URL"
+        ],
+        "summary": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "example": "https://example.com"
+                  },
+                  "customURL": {
+                    "type": "string",
+                    "example": "custom-code-123"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          }
+        }
+      }
     },
     "/api/url/{shortened}": {
-      "method": "GET",
-      "tags": [
-        "URL"
-      ]
+      "get": {
+        "tags": [
+          "URL"
+        ],
+        "summary": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shortened",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "abc123"
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "",
+            "headers": {
+              "Location": {
+                "description": "Redirect destination URL",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
