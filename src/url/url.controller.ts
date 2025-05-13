@@ -14,7 +14,7 @@ export class UrlController {
   }
 
   @UseGuards(UserGuard)
-  @Post('/api/smallin/generate')
+  @Post('/api/url/')
   async generateURL(
     @Body('url') url: string,
     @Req() req: Request,
