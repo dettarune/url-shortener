@@ -1,8 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "User API",
-    "version": "1.0.0"
+    "title": "SmallinURL Documentation",
+    "version": "1.0.0",
+    "description": "Dokumentasi cara pakai API"
   },
   "tags": [
     {
@@ -13,7 +14,9 @@
   "paths": {
     "/api/users": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Create new user",
         "requestBody": {
           "required": true,
@@ -21,27 +24,179 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateUserDTO"
+              },
+              "example": {
+                "username": "detarune",
+                "email": "youremail@example.com",
+                "password": "Admin123"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Successfully created user"
+            "description": "Successfully Create new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully created account for detarune!"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "example": "2025-05-13T11:46:01.609Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 409
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Username is already registered"
+                        },
+                        "suggestion": {
+                          "type": "string",
+                          "example": "Try a different username"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "example": "2025-05-13T13:31:39.172Z"
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/api/users/"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "get": {
-        "tags": ["Users"],
-        "summary": "Get current user info",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get current user info (Requires Login)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "User info returned"
+            "description": "Return User Account Info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Successfully Get detarune's Info!"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "1"
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "detarune"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "detarune@mail.com"
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "example": "2025-05-13T11:46:01.609Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - JWT token invalid or missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "User Not Authorized"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2025-05-13T13:53:09.849Z"
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/api/users"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Logout current user",
         "responses": {
           "200": {
@@ -52,28 +207,95 @@
     },
     "/api/users/login": {
       "post": {
-        "tags": ["Users"],
-        "summary": "Login user and send verification email",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Login User",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/LoginUserDTO"
+              },
+              "example": {
+                "username": "detarune",
+                "email": "youremail@example.com"
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Verification code sent"
+           "200": {
+            "description": "Login Success & Send Verification Code Via Email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Successful sending verification code, please check your email!!"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-05-13T14:09:39.897Z"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+            "description": "Incorrect Password Or Username",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Username or password is incorrect"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "example": "2025-05-13T13:31:39.172Z"
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/api/users/login"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
           }
         }
       }
     },
-    "/api/users/verification-code/welcome/{verifCode}": {
+    "/api/users/verification/{verifCode}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Verify user account via token",
         "parameters": [
           {
@@ -82,84 +304,221 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "randomToken"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful verification"
-          }
-        }
-      }
-    },
-    "/api/users/recovery": {
-      "post": {
-        "tags": ["Users"],
-        "summary": "Send password recovery code",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/emailDTO"
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "Login Success!",
+                  "timestamp": "2025-05-13T14:09:39.897Z"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Login Success!"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-05-13T14:09:39.897Z"
+                    }
+                  }
+                }
               }
             }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Recovery token sent"
-          }
-        }
-      }
-    },
-    "/api/users/recovery/password": {
-      "post": {
-        "tags": ["Users"],
-        "summary": "Update user password after recovery",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password updated"
-          }
-        }
-      }
-    },
-    "/api/users/{id}": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Get user by ID",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User found"
           },
-          "404": {
-            "description": "User not found"
+          "401": {
+            "description": "Unauthorized - Invalid or Expired Token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "statusCode": 401,
+                  "error": {
+                    "message": "Invalid or Expired Token",
+                    "timestamp": "2025-05-13T14:09:57.593Z",
+                    "path": "/api/users/verification-code/welcome/{token}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Invalid or Expired Token"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2025-05-13T14:09:57.593Z"
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/api/users/verification"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/url": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get current user URL list (Requires Login)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+  "description": "Returns a list of all shortened links associated with the authenticated user.",
+  "content": {
+    "application/json": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "example": "List of all links for the user"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "shorten": {
+                  "type": "string",
+                  "example": "Pvlr"
+                },
+                "link": {
+                  "type": "string",
+                  "format": "uri",
+                  "example": "https://youtube.com"
+                }
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-05-13T12:16:08.554Z"
+          }
+        }
+      },
+      "example": {
+        "status": "success",
+        "message": "List of all links for the user",
+        "data": [
+          {
+            "id": 1,
+            "shorten": "Pvlr",
+            "link": "https://youtube.com"
+          }
+        ],
+        "timestamp": "2025-05-13T12:16:08.554Z"
+      }
+    }
+  }
+}
+,
+          "401": {
+            "description": "Unauthorized - Invalid or Expired Token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "statusCode": 401,
+                  "error": {
+                    "message": "Invalid or Expired Token",
+                    "timestamp": "2025-05-13T14:09:57.593Z",
+                    "path": "/api/users/verification-code/welcome/{token}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Invalid or Expired Token"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2025-05-13T14:09:57.593Z"
+                        },
+                        "path": {
+                          "type": "string",
+                          "example": "/api/users/verification"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     }
   },
   "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "Authorization"
+      }
+    },
     "schemas": {
       "CreateUserDTO": {
         "type": "object",
@@ -174,7 +533,11 @@
             "type": "string"
           }
         },
-        "required": ["username", "email", "password"]
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
       },
       "LoginUserDTO": {
         "type": "object",
@@ -186,7 +549,10 @@
             "type": "string"
           }
         },
-        "required": ["username", "password"]
+        "required": [
+          "username",
+          "password"
+        ]
       },
       "emailDTO": {
         "type": "object",
@@ -195,7 +561,9 @@
             "type": "string"
           }
         },
-        "required": ["email"]
+        "required": [
+          "email"
+        ]
       },
       "PasswordDTO": {
         "type": "object",
@@ -204,7 +572,9 @@
             "type": "string"
           }
         },
-        "required": ["password"]
+        "required": [
+          "password"
+        ]
       }
     }
   }
