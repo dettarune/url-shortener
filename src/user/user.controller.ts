@@ -10,6 +10,7 @@ import { UserGuard } from 'src/auth/auth.guard';
 import { UserService } from './user.service';
 import { successResponse } from 'src/utils/response.utils';
 import { ApiBody } from '@nestjs/swagger';
+import { UrlService } from 'src/url/url.service';
 
 
 @Controller('/api/users/')
@@ -17,10 +18,23 @@ import { ApiBody } from '@nestjs/swagger';
 export class UserController {
     constructor(
         private userService: UserService,
+        private urlService: UrlService,
         private redisServ: RedisService,
         private MailerService: MailerService,
         private prismaServ: PrismaService
     ) { }
+
+
+    @UseGuards(UserGuard)
+    @Get('/url')
+    async getUserLinks(@Req() req: Request) {
+
+        const userId = req.user?.id;
+        const userLinks = await this.urlService.getAllUserLinks(userId);
+
+        return successResponse("List of all links for the user", userLinks)
+
+    }
 
 
     @Post('')

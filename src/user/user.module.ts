@@ -6,6 +6,7 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { RedisService } from 'src/redis/redis.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RedisModule } from 'src/redis/redis.module';
+import { UrlService } from 'src/url/url.service';
 
 @Module({
   imports: [RedisModule,
@@ -16,6 +17,6 @@ import { RedisModule } from 'src/redis/redis.module';
     })
   ],
   controllers: [UserController],
-  providers: [UserService, PrismaService, MailerService, RedisService, JwtService]
+  providers: [UserService, PrismaService, MailerService, RedisService, JwtService, UrlService]
 })
 export class UserModule { }

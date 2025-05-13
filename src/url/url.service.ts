@@ -23,12 +23,11 @@ export class UrlService {
       endpoint = generateCharacter(4);
     }
 
-    // Simpan data ke database
     const result = await this.prismaService.shorten.create({
       data: {
         shorten: endpoint,
         link: url,
-        userId: userId,  // pastikan 'userId' diambil sesuai dengan context, misalnya dari session atau JWT
+        userId: userId,  
       },
       select: { shorten: true, link: true },
     });
@@ -60,10 +59,8 @@ export class UrlService {
       }
     };
 
-    // Cek jika custom URL sudah ada
     await isURLTaken(customURL);
 
-    // Simpan data ke database
     const result = await this.prismaService.shorten.create({
       data: {
         shorten: customURL,
@@ -77,4 +74,20 @@ export class UrlService {
     console.log(`Custom URL: ${customURL}`);
     return customURL;
   }
+  
+  async getAllUserLinks(userId: number) {
+  const links = await this.prismaService.shorten.findMany({
+    where: {
+      userId: userId,
+    },
+    select: {
+      id: true,
+      shorten: true,
+      link: true,
+    }
+  });
+
+  return links;
+}
+
 }
