@@ -9,6 +9,8 @@ import { HttpExceptionFilter } from 'src/error/error.filters';
 import { UserGuard } from 'src/auth/auth.guard';
 import { UserService } from './user.service';
 import { successResponse } from 'src/utils/response.utils';
+import { ApiBody } from '@nestjs/swagger';
+
 
 @Controller('/api/users/')
 @UseFilters(HttpExceptionFilter)
@@ -32,6 +34,7 @@ export class UserController {
 
 
     @Post('/login')
+    @HttpCode(200)
     async login(@Body() req: LoginUserDTO) {
 
         const result = await this.userService.login(req)
@@ -41,7 +44,8 @@ export class UserController {
 
 
     @Get('/verification-code/welcome/:verifCode')
-    async verify(@Param('verifCode') verifCode: string,@Res({ passthrough: true }) res: Response) {
+    @HttpCode(200)
+    async verify(@Param('verifCode') verifCode: string, @Res({ passthrough: true }) res: Response) {
 
         const result = await this.userService.verify({ token: verifCode });
         res.cookie('Authorization', result.jwtToken, {
@@ -55,7 +59,7 @@ export class UserController {
 
 
     @Post('/recovery')
-    async recovery( @Body() req: emailDTO) {
+    async recovery(@Body() req: emailDTO) {
 
         const result = this.userService.recovery(req)
         return {
@@ -64,10 +68,10 @@ export class UserController {
 
     }
 
-    
+
 
     @Post('/recovery/password')
-    async updatePassword( @Req() { user }: Request, @Body() req: PasswordDTO,) {
+    async updatePassword(@Req() { user }: Request, @Body() req: PasswordDTO,) {
 
         const { username } = user
         const result = this.userService.updatePassword(username, req.password)
@@ -80,7 +84,7 @@ export class UserController {
 
     @Get('')
     @UseGuards(UserGuard)
-    async getInfoMe( @Req() { user }: Request,): Promise<any> {
+    async getInfoMe(@Req() { user }: Request,): Promise<any> {
 
         const { username } = user
         const result = await this.userService.getInfoMe(username)
