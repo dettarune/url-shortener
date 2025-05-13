@@ -82,50 +82,50 @@ export class UserService {
         }
     }
 
-    async verify(tokenDto: verifyTokenDTO) {
-        try {
-            let payload;
+        async verify(tokenDto: verifyTokenDTO) {
             try {
-                payload = this.jwtService.verify(tokenDto.token, {
-                    secret: process.env.SECRET_JWT
+                let payload;
+                try {
+                    payload = this.jwtService.verify(tokenDto.token, {
+                        secret: process.env.SECRET_JWT
+                    });
+                } catch (err) {
+                    throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
+                }
+
+                const redisKey = `verification_code:${payload.email}`;
+                const tokenRedis = await this.redisService.get(redisKey);
+
+                if (!tokenRedis) {
+                    throw new HttpException('Verification Code Expired or Invalid', HttpStatus.GONE);
+                }
+
+                if (tokenRedis !== tokenDto.token) {
+                    throw new HttpException('Verification Token Not Matched', HttpStatus.FORBIDDEN);
+                }
+
+                const user = await this.prismaServ.user.findFirst({
+                    where: { email: payload.email }
                 });
-            } catch (err) {
-                throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
+
+                if (!user) {
+                    throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+                }
+
+                const jwtToken = this.jwtService.sign(
+                    { id: user.id, username: user.username, email: user.email },
+                    { secret: process.env.SECRET_JWT, expiresIn: '7d' }
+                );
+
+                await this.redisService.delToken(redisKey);
+
+                return { jwtToken };
+
+            } catch (error) {
+                console.error(error.message);
+                throw new HttpException(error.message, error.status);
             }
-
-            const redisKey = `verification_code:${payload.email}`;
-            const tokenRedis = await this.redisService.get(redisKey);
-
-            if (!tokenRedis) {
-                throw new HttpException('Verification Code Expired or Invalid', HttpStatus.GONE);
-            }
-
-            if (tokenRedis !== tokenDto.token) {
-                throw new HttpException('Verification Token Not Matched', HttpStatus.FORBIDDEN);
-            }
-
-            const user = await this.prismaServ.user.findFirst({
-                where: { email: payload.email }
-            });
-
-            if (!user) {
-                throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
-            }
-
-            const jwtToken = this.jwtService.sign(
-                { id: user.id, username: user.username, email: user.email },
-                { secret: process.env.SECRET_JWT, expiresIn: '7d' }
-            );
-
-            await this.redisService.delToken(redisKey);
-
-            return { jwtToken };
-
-        } catch (error) {
-            console.error(error.message);
-            throw new HttpException(error.message, error.code);
         }
-    }
 
 
 
