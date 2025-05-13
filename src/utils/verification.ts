@@ -14,11 +14,11 @@ export async function generateVerifCode(
     );
 
     const baseurl = process.env.BASE_URL
-    const url = `${baseurl}/api/users/verification-code/welcome/${token}`;
+    const url = `${baseurl}/api/users/verification/${token}`;
 
     await mailerService.sendMail(
         targetEmail,
-        targetUsername,
+        targetUsername, 
         url
     );
 

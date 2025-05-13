@@ -57,7 +57,7 @@ export class UserController {
     }
 
 
-    @Get('/verification-code/welcome/:verifCode')
+    @Get('/verification/:verifCode')
     @HttpCode(200)
     async verify(@Param('verifCode') verifCode: string, @Res({ passthrough: true }) res: Response) {
 
@@ -100,7 +100,7 @@ export class UserController {
     @UseGuards(UserGuard)
     async getInfoMe(@Req() { user }: Request,): Promise<any> {
 
-        const { username } = user
+            const { username } = user
         const result = await this.userService.getInfoMe(username)
 
         return {

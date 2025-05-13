@@ -37,6 +37,7 @@ export class UserService {
         if (user) {
             checkAuthConflict(user, req);
         }
+
         await this.prismaServ.user.create({
             data: {
                 username: req.username,
@@ -63,11 +64,11 @@ export class UserService {
             });
 
             if (!user)
-                throw new HttpException('Username or password is incorrect', HttpStatus.NOT_FOUND);
+                throw new HttpException('Username or password is incorrect', HttpStatus.UNAUTHORIZED);
 
             const isPasswordCorrect = await bcrypt.compare(req.password, user.password);
             if (!isPasswordCorrect)
-                throw new HttpException('Username or password is incorrect', HttpStatus.NOT_FOUND);
+                throw new HttpException('Username or password is incorrect', HttpStatus.UNAUTHORIZED);
 
             const token = await generateVerifCode(user.email, user.username, this.jwtService, this.mailerService)
 
