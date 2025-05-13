@@ -85,6 +85,9 @@ export class UserService {
         async verify(verificationCode: verifyTokenDTO) {
             try {
                 let payload;
+                console.log(verificationCode)
+                console.log(verificationCode.token)
+
                 try {
                     payload = this.jwtService.verify(verificationCode.token, {
                         secret: process.env.SECRET_JWT
@@ -93,6 +96,7 @@ export class UserService {
                     throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
                 }
 
+                
                 const redisKey = `verification_code:${payload.email}`;
                 const tokenRedis = await this.redisService.get(`verification_code:${payload.email}`);
 
