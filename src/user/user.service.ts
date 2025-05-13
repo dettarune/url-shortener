@@ -92,7 +92,7 @@ export class UserService {
                 } catch (err) {
                     throw new HttpException('Invalid or Expired Token', HttpStatus.UNAUTHORIZED);
                 }
-
+                
                 const redisKey = `verification_code:${payload.email}`;
                 const tokenRedis = await this.redisService.get(`verification_code:${payload.email}`);
 
