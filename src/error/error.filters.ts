@@ -35,6 +35,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = (response as any).message || message;
         suggestion = (response as any).suggestion;
       }
+    } else if (exception instanceof Error) {
+      message = 'Internal Server Error'; 
     } else {
       message = exception.message || message;
     }
